@@ -181,34 +181,58 @@ def main():
         try:
             # 1. Merge RGB (30m)
             rgb_output_path = os.path.join(output_rgb_dir, f"{file_prefix}_rgb_30m.tif")
-            run_script(
-                "merge_rgb.py",
-                logger,
-                band4_path,
-                band3_path,
-                band2_path,
-                rgb_output_path,
-            )
+            if not os.path.isfile(rgb_output_path):
+                run_script(
+                    "merge_rgb.py",
+                    logger,
+                    band4_path,
+                    band3_path,
+                    band2_path,
+                    rgb_output_path,
+                )
+            else:
+                logger.info(
+                    f"Skipping {file_prefix}: It already has RGB image of 30m TIF"
+                )
 
             # 2. Downscale RGB to 100m (3.33x)
             downscaled_rgb_100m = os.path.join(
                 output_downscale_dir, f"{file_prefix}_rgb_100m.tif"
             )
-            run_script(
-                "downscale.py", logger, rgb_output_path, downscaled_rgb_100m, "3.33"
-            )
+            if not os.path.isfile(downscaled_rgb_100m):
+                run_script(
+                    "downscale.py", logger, rgb_output_path, downscaled_rgb_100m, "3.33"
+                )
+            else:
+                logger.info(
+                    f"Skipping {file_prefix}: It already has downscaled RGB image of 100m TIF"
+                )
 
             # 3. Downscale TIR to 100m (3.33x)
             downscaled_tir_100m = os.path.join(
                 output_downscale_dir, f"{file_prefix}_tir_100m.tif"
             )
-            run_script("downscale.py", logger, band10_path, downscaled_tir_100m, "3.33")
+            if not os.path.isfile(downscaled_tir_100m):
+                run_script(
+                    "downscale.py", logger, band10_path, downscaled_tir_100m, "3.33"
+                )
+            else:
+                logger.info(
+                    f"Skipping {file_prefix}: It already has downscaled TIR image of 100m TIF"
+                )
 
             # 4. Downscale TIR to 200m (6.67x)
             downscaled_tir_200m = os.path.join(
                 output_downscale_dir, f"{file_prefix}_tir_200m.tif"
             )
-            run_script("downscale.py", logger, band10_path, downscaled_tir_200m, "6.67")
+            if not os.path.isfile(downscaled_tir_200m):
+                run_script(
+                    "downscale.py", logger, band10_path, downscaled_tir_200m, "6.67"
+                )
+            else:
+                logger.info(
+                    f"Skipping {file_prefix}: It already has downscaled TIR image of 200m TIF"
+                )
 
             # 5. Create Coregistered Patches
             run_script(
