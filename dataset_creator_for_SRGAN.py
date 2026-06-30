@@ -21,30 +21,40 @@ def output_root(args):
 
 
 def scene(single_output_patch, output_npz_save):
-    subdirectories = [
-        os.path.join(single_output_patch, subdirectory)
-        for subdirectory in os.listdir(single_output_patch)
-    ]
-    for subdirectory in subdirectories:
-        npydict = {}
-        files = os.listdir(subdirectory)
-        for f in files:
-            filename, extension = f.split(".")
-            if extension == "npy" and "rgb" not in filename.lower():
-                value = np.load(os.path.join(subdirectory, f))
-                if "tir_200m" in filename:
-                    npydict["lr"] = value
-                elif "tir_100m_512" in filename:
-                    npydict["hr"] = value
-        output_npydict = ".".join(
-            [
-                os.sep.join(
-                    [output_npz_save, "_".join(subdirectory.split(os.sep)[-2:])]
-                ),
-                "npz",
-            ]
-        )
-        np.savez_compressed(output_npydict, **npydict)
+    if os.path.isdir(single_output_patch):
+        subdirectories = [
+            os.path.join(single_output_patch, subdirectory)
+            for subdirectory in os.listdir(single_output_patch)
+        ]
+        for subdirectory in subdirectories:
+            npydict = {}
+            files = os.listdir(subdirectory)
+            lr = False
+            hr = False
+            for f in files:
+                filename, extension = f.split(".")
+                if extension == "npy" and "rgb" not in filename.lower():
+                    value = np.load(os.path.join(subdirectory, f))
+                    if "tir_200m" in filename:
+                        npydict["lr"] = value
+                        lr = True
+                    if "tir_100m_512" in filename:
+                        npydict["hr"] = value
+                        hr = True
+            if hr and lr:
+                output_npydict = ".".join(
+                    [
+                        os.sep.join(
+                            [output_npz_save, "_".join(subdirectory.split(os.sep)[-2:])]
+                        ),
+                        "npz",
+                    ]
+                )
+                np.savez_compressed(output_npydict, **npydict)
+            else:
+                print(f"Dataset doesn't have the necessary files {subdirectory}")
+    else:
+        print(f"{single_output_patch} is not a directory skipping it")
 
 
 if __name__ == "__main__":
